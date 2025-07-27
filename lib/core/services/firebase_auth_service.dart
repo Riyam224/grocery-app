@@ -70,7 +70,7 @@ class FirebaseAuthService {
     }
   }
 
-  //  todo google sign in
+  //  todo google
   Future<User> signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();

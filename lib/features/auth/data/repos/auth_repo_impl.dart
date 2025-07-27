@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import 'package:grocery/core/error/custom_exceptions.dart';
 import 'package:grocery/core/error/failure.dart';
 import 'package:grocery/core/services/firebase_auth_service.dart';
@@ -43,6 +44,18 @@ class AuthRepoImpl extends AuthRepo {
         password: password,
       );
 
+      return Right(UserModel.fromFirebaseUser(user));
+    } on CustomException catch (e) {
+      return Left(ServerFailure(e.toString()));
+    } catch (e) {
+      return Left(ServerFailure('Something went wrong'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> signInWithGoogle() async {
+    try {
+      var user = await firebaseAuthService.signInWithGoogle();
       return Right(UserModel.fromFirebaseUser(user));
     } on CustomException catch (e) {
       return Left(ServerFailure(e.toString()));

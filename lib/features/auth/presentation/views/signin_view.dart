@@ -3,46 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery/core/custom_widgets/custom_btn.dart';
 import 'package:grocery/core/custom_widgets/custom_text_field.dart';
-import 'package:grocery/core/helper_functions/custom_snackbar.dart';
+
 import 'package:grocery/core/routing/app_routes.dart';
-import 'package:grocery/core/services/get_it_service.dart';
+
 import 'package:grocery/core/styling/app_colors.dart';
-import 'package:grocery/features/auth/domain/repos/auth_repo.dart';
+
 import 'package:grocery/features/auth/presentation/cubit/signin/signin_cubit.dart';
-import 'package:grocery/features/auth/presentation/cubit/signin/signin_state.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SigninView extends StatelessWidget {
   const SigninView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SigninCubit(getIt<AuthRepo>()),
-      child: Scaffold(
-        body: Builder(
-          builder: (context) {
-            return BlocConsumer<SigninCubit, SigninState>(
-              listener: (context, state) {
-                if (state is SigninSuccess) {
-                  GoRouter.of(context).go(AppRoutes.home);
-                }
-
-                if (state is SigninFailure) {
-                  showCustomSnackbar(context, state.message);
-                }
-              },
-              builder: (context, state) {
-                return ModalProgressHUD(
-                  inAsyncCall: state is SigninLoading ? true : false,
-                  child: SigninViewBody(),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
+    return Scaffold(body: SigninViewBody());
   }
 }
 
