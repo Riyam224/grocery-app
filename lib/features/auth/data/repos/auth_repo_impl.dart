@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:grocery/core/error/custom_exceptions.dart';
 import 'package:grocery/core/error/failure.dart';
@@ -15,12 +14,31 @@ class AuthRepoImpl extends AuthRepo {
   Future<Either<Failure, UserEntity>> createUserWithEmailandPassword(
     String email,
     String password,
-    String phoneNumber,
+    String? phoneNumber,
   ) async {
     // todo to check
 
     try {
       var user = await firebaseAuthService.createUserWithEmailandPassword(
+        email: email,
+        password: password,
+      );
+
+      return Right(UserModel.fromFirebaseUser(user));
+    } on CustomException catch (e) {
+      return Left(ServerFailure(e.toString()));
+    } catch (e) {
+      return Left(ServerFailure('Something went wrong'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> signInWithEmailandPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      var user = await firebaseAuthService.signInWithEmailandPassword(
         email: email,
         password: password,
       );

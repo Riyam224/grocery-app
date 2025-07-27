@@ -1,24 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery/core/custom_widgets/custom_btn.dart';
 import 'package:grocery/core/custom_widgets/custom_text_field.dart';
+import 'package:grocery/core/helper_functions/custom_snackbar.dart';
 import 'package:grocery/core/routing/app_routes.dart';
+import 'package:grocery/core/services/get_it_service.dart';
 import 'package:grocery/core/styling/app_colors.dart';
+import 'package:grocery/features/auth/domain/repos/auth_repo.dart';
+import 'package:grocery/features/auth/presentation/cubit/signin/signin_cubit.dart';
+import 'package:grocery/features/auth/presentation/cubit/signin/signin_state.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SigninView extends StatelessWidget {
   const SigninView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset('assets/images/auth2.png', fit: BoxFit.cover),
-          SizedBox(height: 20),
+    return BlocProvider(
+      create: (context) => SigninCubit(getIt<AuthRepo>()),
+      child: Scaffold(
+        body: Builder(
+          builder: (context) {
+            return BlocConsumer<SigninCubit, SigninState>(
+              listener: (context, state) {
+                if (state is SigninSuccess) {
+                  GoRouter.of(context).go(AppRoutes.home);
+                }
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                if (state is SigninFailure) {
+                  showCustomSnackbar(context, state.message);
+                }
+              },
+              builder: (context, state) {
+                return ModalProgressHUD(
+                  inAsyncCall: state is SigninLoading ? true : false,
+                  child: SigninViewBody(),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// todo sign in view
+class SigninViewBody extends StatefulWidget {
+  const SigninViewBody({super.key});
+
+  @override
+  State<SigninViewBody> createState() => _SigninViewBodyState();
+}
+
+class _SigninViewBodyState extends State<SigninViewBody> {
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
+  String? email, password;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Image.asset('assets/images/auth2.png', fit: BoxFit.cover),
+        SizedBox(height: 20),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          // todo add form here
+          child: Form(
+            key: formKey,
+            autovalidateMode: autovalidateMode,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -46,7 +99,9 @@ class SigninView extends StatelessWidget {
                 SizedBox(height: 26),
                 CustomTextField(
                   obscureText: false,
-                  onSaved: (value) {},
+                  onSaved: (value) {
+                    email = value;
+                  },
                   suffixIcon: const Icon(Icons.email_outlined),
                   hintText: 'Email Address',
                   keyboardType: TextInputType.emailAddress,
@@ -55,7 +110,9 @@ class SigninView extends StatelessWidget {
 
                 CustomTextField(
                   obscureText: true,
-                  onSaved: (value) {},
+                  onSaved: (value) {
+                    password = value;
+                  },
                   suffixIcon: const Icon(Icons.lock_outline),
                   hintText: 'password',
                   keyboardType: TextInputType.emailAddress,
@@ -104,7 +161,22 @@ class SigninView extends StatelessWidget {
                 CustomBtn(
                   color: AppColors.darkPrimaryColor,
                   text: 'Sign In',
-                  onTap: () {},
+                  onTap: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      formKey.currentState?.save();
+
+                      if (email != null && password != null) {
+                        context.read<SigninCubit>().signInWithEmailandPassword(
+                          email: email!,
+                          password: password!,
+                        );
+                      }
+                    } else {
+                      setState(() {
+                        autovalidateMode = AutovalidateMode.always;
+                      });
+                    }
+                  },
                 ),
                 SizedBox(height: 17),
                 GestureDetector(
@@ -153,8 +225,8 @@ class SigninView extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

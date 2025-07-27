@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery/core/custom_widgets/custom_btn.dart';
 import 'package:grocery/core/custom_widgets/custom_text_field.dart';
+import 'package:grocery/core/helper_functions/custom_snackbar.dart';
 import 'package:grocery/core/routing/app_routes.dart';
 import 'package:grocery/core/services/get_it_service.dart';
 import 'package:grocery/core/styling/app_colors.dart';
@@ -28,9 +29,7 @@ class SignupView extends StatelessWidget {
                 }
 
                 if (state is SignupFailure) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                  showCustomSnackbar(context, state.message);
                 }
               },
               builder: (context, state) {
