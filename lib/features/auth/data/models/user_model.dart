@@ -21,6 +21,7 @@ class UserModel extends UserEntity {
     return UserModel(email: user.email ?? '', uId: user.uid, phoneNumber: '');
   }
 
+// todo to use it in fetch USER data
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       uId: json['uId'],

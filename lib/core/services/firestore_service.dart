@@ -1,27 +1,25 @@
 // Abstract interface
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grocery/features/auth/data/models/user_model.dart';
+import 'package:grocery/features/auth/domain/entities/user_entity.dart';
 
 abstract class DatabaseService {
-
-  // todo add data 
+  // todo add data
   Future<void> addData({
     required String path,
     required Map<String, dynamic> data,
   });
 
-// todo  update data
+  // todo  update data
   Future<void> updateData({
     required String path,
     required String docId,
     required Map<String, dynamic> newData,
   });
 
-  Future<void> deleteData({required String path, required String docId});
+  //  todo get user data
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getUser({
-    required String path,
-    required String docId,
-  });
+  Future<UserEntity> getUserData({required String uId, required String path});
 }
 
 // todo FirestoreService Implementation
@@ -47,15 +45,11 @@ class FirestoreService implements DatabaseService {
   }
 
   @override
-  Future<void> deleteData({required String path, required String docId}) async {
-    await firestore.collection(path).doc(docId).delete();
-  }
-
-  @override
-  Future<DocumentSnapshot<Map<String, dynamic>>> getUser({
+  Future<UserEntity> getUserData({
+    required String uId,
     required String path,
-    required String docId,
   }) async {
-    return await firestore.collection(path).doc(docId).get();
+    var data = await firestore.collection(path).doc(uId).get();
+    return UserModel.fromJson(data.data() as Map<String, dynamic>);
   }
 }
