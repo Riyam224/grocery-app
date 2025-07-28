@@ -44,18 +44,24 @@ class AuthRepoImpl extends AuthRepo {
       return Right(userEntity);
     } on CustomException catch (e) {
       // todo check if user is not null . means the user created , delete it
-      if (user != null) {
-        await firebaseAuthService.deleteUser();
-      }
+      await deleteUser(user);
       return Left(ServerFailure(e.toString()));
     } catch (e) {
       // todo do the same here
-      if (user != null) {
-        await firebaseAuthService.deleteUser();
-      }
+      await deleteUser(user);
       return Left(ServerFailure('Something went wrong'));
     }
   }
+
+  //todo  the extracted method from above in left
+
+  Future<void> deleteUser(User? user) async {
+    if (user != null) {
+      await firebaseAuthService.deleteUser();
+    }
+  }
+
+  // todo sign in with email and password . dont need to depends on user entiy cuz its just email and pass from firebase auth service
 
   @override
   Future<Either<Failure, UserEntity>> signInWithEmailandPassword({
@@ -76,12 +82,17 @@ class AuthRepoImpl extends AuthRepo {
     }
   }
 
+  // todo sign in with google
   @override
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
+    User? user;
     try {
-      var user = await firebaseAuthService.signInWithGoogle();
-      return Right(UserModel.fromFirebaseUser(user));
+      user = await firebaseAuthService.signInWithGoogle();
+      var userEntity = UserModel.fromFirebaseUser(user);
+      await addData(user: userEntity);
+      return Right(userEntity);
     } on CustomException catch (e) {
+      await deleteUser(user);
       return Left(ServerFailure(e.toString()));
     } catch (e) {
       return Left(ServerFailure('Something went wrong'));
