@@ -6,6 +6,8 @@ abstract class DatabaseService {
   Future<void> addData({
     required String path,
     required Map<String, dynamic> data,
+    // todo add this for check for not  null data
+    String? documentId,
   });
 
   // todo  update data
@@ -20,9 +22,15 @@ abstract class DatabaseService {
     required String documentId,
     required String path,
   });
+
+  // todo for social , check if the data exist
+  Future<bool> checkIfDataExist({
+    required String path,
+    required String documentId,
+  });
 }
 
-// todo FirestoreService Implementation
+// todo FirestoreService Implementation __________________________________
 
 class FirestoreService implements DatabaseService {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -31,7 +39,11 @@ class FirestoreService implements DatabaseService {
   Future<void> addData({
     required String path,
     required Map<String, dynamic> data,
+    String? documentId,
   }) async {
+    if (documentId != null) {
+      await firestore.collection(path).doc(documentId).set(data);
+    }
     await firestore.collection(path).add(data);
   }
 
@@ -51,5 +63,16 @@ class FirestoreService implements DatabaseService {
   }) async {
     var data = await firestore.collection(path).doc(documentId).get();
     return data.data() as Map<String, dynamic>;
+  }
+
+  // todo check in imple
+
+  @override
+  Future<bool> checkIfDataExist({
+    required String path,
+    required String documentId,
+  }) async {
+    var data = await firestore.collection(path).doc(documentId).get();
+    return data.exists;
   }
 }

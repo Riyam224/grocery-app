@@ -19,4 +19,6 @@ abstract class AuthRepo {
   // todo add data method in firestore
 
   Future addData({required UserEntity user});
+  // todo get user data
+  Future<UserEntity> getUserData({required String uId});
 }

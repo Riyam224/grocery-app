@@ -74,7 +74,9 @@ class AuthRepoImpl extends AuthRepo {
         password: password,
       );
 
-      return Right(UserModel.fromFirebaseUser(user));
+      // todo read data after login
+      var UserEntity = await getUserData(uId: user.uid);
+      return Right(UserEntity);
     } on CustomException catch (e) {
       return Left(ServerFailure(e.toString()));
     } catch (e) {
@@ -89,7 +91,17 @@ class AuthRepoImpl extends AuthRepo {
     try {
       user = await firebaseAuthService.signInWithGoogle();
       var userEntity = UserModel.fromFirebaseUser(user);
-      await addData(user: userEntity);
+      // todo check if the user exist
+      var isUserExist = await databaseService.checkIfDataExist(
+        path: BackendEndpoints.isUserExist,
+        documentId: user.uid,
+      );
+      if (isUserExist) {
+        await getUserData(uId: user.uid);
+      } else {
+        await addData(user: userEntity);
+      }
+
       return Right(userEntity);
     } on CustomException catch (e) {
       await deleteUser(user);
@@ -98,7 +110,7 @@ class AuthRepoImpl extends AuthRepo {
       return Left(ServerFailure('Something went wrong'));
     }
   }
-
+  // todo   _________ save the data in firestore
   // todo add Data
 
   @override
@@ -107,6 +119,18 @@ class AuthRepoImpl extends AuthRepo {
       path: BackendEndpoints.addUser,
       // todo from userEntity
       data: user.toMap(),
+      documentId: user.uId,
     );
+  }
+
+  // todo get user data impl , read data
+
+  @override
+  Future<UserEntity> getUserData({required String uId}) async {
+    var userData = await databaseService.getUserData(
+      path: BackendEndpoints.addUser,
+      documentId: uId,
+    );
+    return UserModel.fromJson(userData);
   }
 }
