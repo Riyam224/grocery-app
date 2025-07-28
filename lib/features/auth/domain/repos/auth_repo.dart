@@ -15,4 +15,8 @@ abstract class AuthRepo {
   });
 
   Future<Either<Failure, UserEntity>> signInWithGoogle();
+
+  // todo add data method in firestore
+
+  Future addData({required UserEntity user});
 }

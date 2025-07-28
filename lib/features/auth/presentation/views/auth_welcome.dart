@@ -45,7 +45,7 @@ class AuthWelcome extends StatelessWidget {
   }
 }
 
-// TODO
+// todo
 
 class AuthWelcomeBody extends StatelessWidget {
   const AuthWelcomeBody({super.key});

@@ -1,3 +1,5 @@
+// ignore_for_file: annotate_overrides
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grocery/features/auth/domain/entities/user_entity.dart';
 

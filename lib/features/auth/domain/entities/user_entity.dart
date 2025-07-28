@@ -23,6 +23,22 @@ class UserEntity extends Equatable {
     this.image,
   });
 
+  // todo store data that comes from firebase
+
+  toMap() {
+    return {
+      'uId': uId,
+      'name': name,
+      'email': email,
+      'address': address,
+      'city': city,
+      'zipcode': zipcode,
+      'country': country,
+      'phoneNumber': phoneNumber,
+      'image': image,
+    };
+  }
+
   @override
   List<Object?> get props => [uId, email, phoneNumber];
 }
